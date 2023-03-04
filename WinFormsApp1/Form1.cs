@@ -15,20 +15,25 @@ namespace WinFormsApp1
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            //Засекаем время
             Stopwatch sw = new Stopwatch();
             sw.Start();
             Coder coder = new Coder();
             coder.progresCompleted += showProgress;
+            //Считываем входные данные
             string[] input = File.ReadAllLines(openFileDialog1.FileName);
+            //Кодируем данные
             Task<CoderOutput> res = coder.codе(input, (int)numericUpDown1.Value);
             res.Start();
             await res;
             CoderOutput result = res.Result;
+            //Записываем в файл результат
             BinaryFormatter formatter = new BinaryFormatter();
             using (FileStream fs = new FileStream(Path.ChangeExtension(openFileDialog1.FileName, "dat"), FileMode.OpenOrCreate))
             {
                 formatter.Serialize(fs, result);
             }
+            //Выводим результат
             sw.Stop();
             double originalSize = new System.IO.FileInfo(openFileDialog1.FileName).Length;
             double newSize = new System.IO.FileInfo(Path.ChangeExtension(openFileDialog1.FileName, "dat")).Length;
@@ -52,16 +57,20 @@ namespace WinFormsApp1
 
         private async void button4_Click(object sender, EventArgs e)
         {
+            //Засекаем время
             Stopwatch sw = new Stopwatch();
             sw.Start();
             Decoder decoder = new Decoder();
             decoder.progresCompleted += showProgressDecode;
+            //Считываем входные данные
             BinaryFormatter formatter = new BinaryFormatter();
             CoderOutput input = (CoderOutput)formatter.Deserialize(openFileDialog2.OpenFile());
+            //Декодируем данные
             Task<string> task = decoder.decode(input);
             task.Start();
             await task;
             string output = task.Result;
+            //Записываем в файл результат
             string path = openFileDialog2.FileName;
             path = Path.ChangeExtension(path, "txt");
             using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
@@ -69,6 +78,7 @@ namespace WinFormsApp1
                 byte[] buffer = Encoding.Default.GetBytes(output);
                 fs.Write(buffer, 0, buffer.Length);
             }
+            //Выводим результат
             sw.Stop();
             label10.Text = "Время выполнения: " + sw.Elapsed;
             decoder.progresCompleted -= showProgressDecode;
