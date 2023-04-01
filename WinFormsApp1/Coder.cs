@@ -15,28 +15,27 @@ namespace WinFormsApp1
         }
         //Событие, для оповещения о прогрессе кодирования
         public event Action<double> progresCompleted;
-        public Task<CoderOutput> codе(string[] input, int lengthCodeInBits)
+        public Task<CoderOutput> codе(byte[] input, int lengthCodeInBits)
         {
             return new Task<CoderOutput>(() =>
             {
-                //Подсчитывается частота, каждого символа
-                Dictionary<char, int> characterFrequency = new Dictionary<char, int>();
-                input.ToList().ForEach(c => c.ToList().ForEach(i =>
+                //Подсчитывается частота, каждого байта
+                Dictionary<byte, int> characterFrequency = new Dictionary<byte, int>();
+                input.ToList().ForEach(c => 
                 {
-                    if (!characterFrequency.ContainsKey(i))
-                        characterFrequency.Add(i, 0);
-                    characterFrequency[i]++;
-                }));
-                characterFrequency.Add('\n', input.Length - 1);
-                //Символы сортируются по увеличению частоты
-                List<KeyValuePair<char, int>> sortedCharacterFrequency = characterFrequency.ToList().OrderBy(j => j.Value).ToList();
+                    if (!characterFrequency.ContainsKey(c))
+                        characterFrequency.Add(c, 0);
+                    characterFrequency[c]++;
+                });
+                //Байты сортируются по увеличению частоты
+                List<KeyValuePair<byte, int>> sortedCharacterFrequency = characterFrequency.ToList().OrderBy(j => j.Value).ToList();
                 //Составляется массив сум префиксов
                 List<int> prefix = new List<int>(characterFrequency.Count + 1);
                 prefix.Add(0);
                 for (int i = 0; i < characterFrequency.Count; i++)
                     prefix.Add(prefix[i] + sortedCharacterFrequency[i].Value);
-                //Словарь закодированных символов
-                Dictionary<char, List<bool>> encodedSymbols = new Dictionary<char, List<bool>>();
+                //Словарь закодированных байтов
+                Dictionary<byte, List<bool>> encodedSymbols = new Dictionary<byte, List<bool>>();
                 sortedCharacterFrequency.ForEach(c => { encodedSymbols.Add(c.Key, new List<bool>()); });
                 //Кодируем символы
                 if (sortedCharacterFrequency.Count == 1)
@@ -46,47 +45,31 @@ namespace WinFormsApp1
                 //Создаем объект CoderOutput для возврата из метода
                 CoderOutput result = new CoderOutput()
                 {
-                    encodedCharacters = encodedSymbols.Select(j => new KeyValuePair<char, bool[]>(j.Key, j.Value.ToArray())).ToArray()
+                    countBytes = sortedCharacterFrequency.ToArray(),
+                    lengthOriginal = input.Length
                 };
-                int allSize = input.Sum(i => i.Length);
+                int allSize = input.Length;
                 int num = 1;
                 //Закодированные байты
                 List<byte> bytes = new List<byte>();
                 int bits_left = -1;
-                //Кодируем каждый символ в тексте
-                foreach (string str in input)
+                //Кодируем каждый байт в тексте
+                foreach (byte b in input)
                 {
-
-                    foreach (char s in str)
+                    encodedSymbols[b].ForEach(bit =>
                     {
-                        encodedSymbols[s].ForEach(bit =>
-                        {
-                            //Проверка на то, закончилось ли место в текущем байте
-                            //Если да, то создаем новый
-                            if (bits_left == -1)
-                            {
-                                bits_left = 7;
-                                bytes.Add(0);
-                            }
-                            //Кодируем бит в байте в соответствии с кодом символа
-                            bytes[bytes.Count - 1] |= (byte)((bit ? 1 : 0) << (bits_left--));
-                        });
-                        num++;
-                        if (allSize > 100 && num % (allSize / 100) < (num - 1) % (allSize / 100))
-                            progresCompleted?.Invoke((((double)num) / allSize) * 100.0);
-                    }
-                    //Кодируем перенос строки
-                    encodedSymbols['\n'].ForEach(bit =>
-                    {
+                        //Проверка на то, закончилось ли место в текущем байте
+                        //Если да, то создаем новый
                         if (bits_left == -1)
                         {
                             bits_left = 7;
                             bytes.Add(0);
                         }
+                        //Кодируем бит в байте в соответствии с кодом изначального байта
                         bytes[bytes.Count - 1] |= (byte)((bit ? 1 : 0) << (bits_left--));
                     });
                     num++;
-                    if (allSize > 100 && num % (allSize / 1) < (num - 100) % (allSize / 100))
+                    if (allSize > 100 && num % (allSize / 100) < (num - 1) % (allSize / 100))
                         progresCompleted?.Invoke((((double)num) / allSize) * 100.0);
                 }
                 progresCompleted?.Invoke(100.0);
@@ -96,7 +79,7 @@ namespace WinFormsApp1
             });
         }
         //Метод для кодирования символов
-        private void codeCharacters(List<KeyValuePair<char, int>> characterFrequency, List<int> prefix, int l, int r, int deep, int lengthCodeInBits, Dictionary<char, List<bool>> encodedSymbols)
+        private void codeCharacters(List<KeyValuePair<byte, int>> characterFrequency, List<int> prefix, int l, int r, int deep, int lengthCodeInBits, Dictionary<byte, List<bool>> encodedSymbols)
         {
             //Если в диапазоне остался 1 элемент, то можно возращаться из метода
             if (r - l == 1)
@@ -124,7 +107,6 @@ namespace WinFormsApp1
             //Кодируем дальше правый диапазон
             codeCharacters(characterFrequency, prefix, lb + 1, r, deep + 1, lengthCodeInBits, encodedSymbols);
         }
-
 
     }
 }

@@ -13,7 +13,11 @@ namespace WinFormsApp1
     {
         //Закодированный массив байт
         public byte[] output;
-        //Ключи символов, для расшифровки
-        public KeyValuePair<char, bool[]>[] encodedCharacters;
+        //Расширение оригинального файла
+        public string extension;
+        //Количество байт оригинального байта
+        public int lengthOriginal;
+        //Массив пар типа (байт; его частота)
+        public KeyValuePair<byte, int>[] countBytes;
     }
 }

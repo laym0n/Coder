@@ -21,17 +21,20 @@ namespace WinFormsApp1
             Coder coder = new Coder();
             coder.progresCompleted += showProgress;
             //Считываем входные данные
-            string[] input = File.ReadAllLines(openFileDialog1.FileName);
+            byte[] input = File.ReadAllBytes(openFileDialog1.FileName);
             //Кодируем данные
             Task<CoderOutput> res = coder.codе(input, (int)numericUpDown1.Value);
             res.Start();
             await res;
             CoderOutput result = res.Result;
+            result.extension = Path.GetExtension(openFileDialog1.FileName);
             //Записываем в файл результат
             BinaryFormatter formatter = new BinaryFormatter();
+            long sizeResultFile;
             using (FileStream fs = new FileStream(Path.ChangeExtension(openFileDialog1.FileName, "dat"), FileMode.OpenOrCreate))
             {
                 formatter.Serialize(fs, result);
+                sizeResultFile = fs.Length;
             }
             //Выводим результат
             sw.Stop();
@@ -39,6 +42,8 @@ namespace WinFormsApp1
             double newSize = new System.IO.FileInfo(Path.ChangeExtension(openFileDialog1.FileName, "dat")).Length;
             label5.Text = "Степень сжатия: " + ((originalSize - newSize) / originalSize * 100.0) + "%";
             label6.Text = "Время выполнения: " + sw.Elapsed;
+            label13.Text = result.output.Length.ToString();
+            label14.Text = sizeResultFile.ToString();
             coder.progresCompleted -= showProgress;
         }
         private void showProgress(double progress)
@@ -65,18 +70,18 @@ namespace WinFormsApp1
             //Считываем входные данные
             BinaryFormatter formatter = new BinaryFormatter();
             CoderOutput input = (CoderOutput)formatter.Deserialize(openFileDialog2.OpenFile());
+            showFileName(input.extension);
             //Декодируем данные
-            Task<string> task = decoder.decode(input);
+            Task<byte[]> task = decoder.decode(input);
             task.Start();
             await task;
-            string output = task.Result;
+            byte[] output = task.Result;
             //Записываем в файл результат
             string path = openFileDialog2.FileName;
-            path = Path.ChangeExtension(path, "txt");
+            path = Path.ChangeExtension(path, input.extension);
             using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
             {
-                byte[] buffer = Encoding.Default.GetBytes(output);
-                fs.Write(buffer, 0, buffer.Length);
+                fs.Write(output, 0, output.Length);
             }
             //Выводим результат
             sw.Stop();
@@ -94,10 +99,10 @@ namespace WinFormsApp1
             label2.Text = "Выходной файл: " + Path.ChangeExtension(openFileDialog1.FileName, "dat");
         }
 
-        private void openFileDialog2_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
+        private void showFileName(String extension)
         {
             label7.Text = "Входной файл: " + openFileDialog2.FileName;
-            label8.Text = "Выходной файл: " + Path.ChangeExtension(openFileDialog2.FileName, "txt");
+            label8.Text = "Выходной файл: " + Path.ChangeExtension(openFileDialog2.FileName, extension);
         }
     }
 }

@@ -30,6 +30,10 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
@@ -66,6 +70,10 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.label14);
+            this.tabPage1.Controls.Add(this.label13);
+            this.tabPage1.Controls.Add(this.label12);
+            this.tabPage1.Controls.Add(this.label11);
             this.tabPage1.Controls.Add(this.numericUpDown1);
             this.tabPage1.Controls.Add(this.button2);
             this.tabPage1.Controls.Add(this.button1);
@@ -82,6 +90,40 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Кодер";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(402, 529);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(0, 25);
+            this.label14.TabIndex = 11;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(706, 480);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(0, 25);
+            this.label13.TabIndex = 10;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(40, 529);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(356, 25);
+            this.label12.TabIndex = 9;
+            this.label12.Text = "Размер в байтах закодированного файла ";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(40, 480);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(650, 25);
+            this.label11.TabIndex = 8;
+            this.label11.Text = "Размер в байтах закодированного файла без учета данных для расшифровки";
             // 
             // numericUpDown1
             // 
@@ -254,14 +296,12 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.Filter = "text files(*.txt;*.docx)|*.txt;*.docx";
             this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // openFileDialog2
             // 
             this.openFileDialog2.FileName = "openFileDialog2";
-            this.openFileDialog2.Filter = "Закодированные файлы |*.dat";
-            this.openFileDialog2.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog2_FileOk);
+            this.openFileDialog2.Filter = "Файлы *.dat | *.dat";
             // 
             // Form1
             // 
@@ -303,5 +343,9 @@
         private NumericUpDown numericUpDown1;
         private Label label5;
         private Label label4;
+        private Label label14;
+        private Label label13;
+        private Label label12;
+        private Label label11;
     }
 }
